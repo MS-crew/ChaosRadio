@@ -2,10 +2,10 @@
 using VoiceChat;
 using HarmonyLib;
 using System.Linq;
+using UnityEngine;
 using PlayerRoles.Voice;
 using Exiled.API.Features;
 using VoiceChat.Networking;
-using System.Collections.Generic;
 
 namespace ChaosRadio
 {
@@ -18,32 +18,50 @@ namespace ChaosRadio
                 return true;
 
             Player player = Player.Get(conn);
-            bool kaosmu = player.Items.Any(item => KaosTelsiz.telsiz.Check(item));
+            bool oyuncuKaosTelsiziVar = player.Items.Any(item => KaosTelsiz.telsiz.Check(item));
 
             if (msg.SpeakerNull || msg.Speaker.netId != conn.identity.netId)
                 return false;
 
-            IVoiceRole voiceRole = msg.Speaker.roleManager.CurrentRole as IVoiceRole;
-            if (voiceRole == null || !voiceRole.VoiceModule.CheckRateLimit() || VoiceChatMutes.IsMuted(msg.Speaker, false))
+            IVoiceRole speakerRole = msg.Speaker.roleManager.CurrentRole as IVoiceRole;
+            if (speakerRole == null || !speakerRole.VoiceModule.CheckRateLimit() || VoiceChatMutes.IsMuted(msg.Speaker, false))
                 return false;
 
-            VoiceChatChannel voiceChatChannel = voiceRole.VoiceModule.ValidateSend(msg.Channel);
-            if (voiceChatChannel == VoiceChatChannel.None)
+            VoiceChatChannel validatedChannel = speakerRole.VoiceModule.ValidateSend(msg.Channel);
+            if (validatedChannel == VoiceChatChannel.None)
                 return false;
 
-            voiceRole.VoiceModule.CurrentChannel = voiceChatChannel;
-            List<Player> RadyoyaGore = Player.List.Where(p => p.Items.Any(item => KaosTelsiz.telsiz.Check(item)) == kaosmu).ToList();
-            foreach (Player target in RadyoyaGore)
+            speakerRole.VoiceModule.CurrentChannel = validatedChannel;
+            foreach (Player target in Player.List)
             {
-                IVoiceRole voiceRole2 = target.ReferenceHub.roleManager.CurrentRole as IVoiceRole;
-                if (voiceRole2 != null)
+                if (target.ReferenceHub == msg.Speaker)
+                    continue;
+
+                IVoiceRole targetRole = target.ReferenceHub.roleManager.CurrentRole as IVoiceRole;
+                if (targetRole == null)
+                    continue;
+
+                bool hedefKaosTelsiziVar = target.Items.Any(item => KaosTelsiz.telsiz.Check(item));
+                if (oyuncuKaosTelsiziVar == hedefKaosTelsiziVar)
                 {
-                    VoiceChatChannel voiceChatChannel2 = voiceRole2.VoiceModule.ValidateReceive(msg.Speaker, voiceChatChannel);
-                    if (voiceChatChannel2 != VoiceChatChannel.None)
-                    {
-                        msg.Channel = voiceChatChannel2;
-                        target.ReferenceHub.connectionToClient.Send<VoiceMessage>(msg, 0);
-                    }
+                    VoiceChatChannel targetChannel = targetRole.VoiceModule.ValidateReceive(msg.Speaker, validatedChannel);
+                    if (targetChannel == VoiceChatChannel.None)
+                        continue;
+
+                    msg.Channel = targetChannel;
+                    target.ReferenceHub.connectionToClient.Send(msg, 0);
+                }
+                else
+                {
+                    if (Vector3.Distance(target.Position, player.Position) >= 10f)
+                        continue;
+
+                    VoiceChatChannel targetChannel = targetRole.VoiceModule.ValidateReceive(msg.Speaker, VoiceChatChannel.Proximity);
+                    if (targetChannel == VoiceChatChannel.None)
+                        continue;
+
+                    msg.Channel = targetChannel;
+                    target.ReferenceHub.connectionToClient.Send(msg, 0);
                 }
             }
             return false;

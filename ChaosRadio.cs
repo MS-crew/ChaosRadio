@@ -12,7 +12,7 @@ namespace ChaosRadio
     {
         public static KaosTelsiz telsiz;
         public override uint Id { get; set; } = 40;
-        public override float Weight { get; set; } = 1f;
+        public override float Weight { get; set; } = 1.7f;
         public override string Name { get; set; } = "Chaos Radio"; 
         public override ItemType Type { get; set; } = ItemType.Radio;
         public override Vector3 Scale { get; set; } = new Vector3(1, 1, 1);
