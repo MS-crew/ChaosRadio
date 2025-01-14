@@ -6,12 +6,7 @@ using UnityEngine;
 using PlayerRoles.Voice;
 using Exiled.API.Features;
 using VoiceChat.Networking;
-using VoiceChat.Playbacks;
-using UnityEngine.Profiling;
-using InventorySystem.Items.Radio;
-using Exiled.API.Features.Pickups;
 using Exiled.API.Features.Items;
-using static PlayerList;
 using PlayerRoles.FirstPersonControl;
 
 namespace ChaosRadio
