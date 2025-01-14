@@ -1,7 +1,7 @@
 <h1 align="center">ChaosRadio</h1>
 <div align="center">
 <a href="https://github.com/MS-crew/ChaosRadio/releases"><img src="https://img.shields.io/github/downloads/MS-crew/ChaosRadio/total?style=for-the-badge&logo=githubactions&label=Downloads" href="https://github.com/MS-crew/ChaosRadio/releases" alt="GitHub Release Download"></a>
-<a href="https://github.com/MS-crew/ChaosRadio/releases"><img src="https://img.shields.io/badge/Build-1.1.6-brightgreen?style=for-the-badge&logo=gitbook" href="https://github.com/MS-crew/ChaosRadio/releases" alt="GitHub Releases"></a>
+<a href="https://github.com/MS-crew/ChaosRadio/releases"><img src="https://img.shields.io/badge/Build-1.1.7-brightgreen?style=for-the-badge&logo=gitbook" href="https://github.com/MS-crew/ChaosRadio/releases" alt="GitHub Releases"></a>
 <a href="https://github.com/MS-crew/ChaosRadio/blob/master/LICENSE"><img src="https://img.shields.io/badge/Licence-GNU_3.0-blue?style=for-the-badge&logo=gitbook" href="https://github.com/MS-crew/ChaosRadio/blob/master/LICENSE" alt="General Public License v3.0"></a>
 <a href="https://github.com/ExMod-Team/EXILED"><img src="https://img.shields.io/badge/Exiled-9.3.0-red?style=for-the-badge&logo=gitbook" href="https://github.com/ExMod-Team/EXILED" alt="GitHub Exiled"></a>
 
@@ -38,10 +38,10 @@ add_radioin_spawn: true
 # Should chaos insurgency get chaos radio even if it is a Custom Role?
 add_even_custom_role: true
 chaos_radio:
-  id: 31
-  weight: 0
+  id: 311
+  weight: 1.70000005
   name: 'Chaos Radio'
-  type: None
+  type: Radio
   scale:
     x: 1
     y: 1
@@ -53,7 +53,7 @@ chaos_radio:
     - location: InsideGateA
       chance: 100
     static_spawn_points:
-    - name: ''
+    - name: ""
       chance: 0
       position:
         x: 0
