@@ -11,7 +11,7 @@ namespace ChaosRadio
     public class KaosTelsiz : CustomItem
     {
         public static KaosTelsiz telsiz;
-        public override uint Id { get; set; } = 40;
+        public override uint Id { get; set; } = 311;
         public override float Weight { get; set; } = 1.7f;
         public override string Name { get; set; } = "Chaos Radio"; 
         public override ItemType Type { get; set; } = ItemType.Radio;

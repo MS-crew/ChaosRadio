@@ -6,6 +6,13 @@ using UnityEngine;
 using PlayerRoles.Voice;
 using Exiled.API.Features;
 using VoiceChat.Networking;
+using VoiceChat.Playbacks;
+using UnityEngine.Profiling;
+using InventorySystem.Items.Radio;
+using Exiled.API.Features.Pickups;
+using Exiled.API.Features.Items;
+using static PlayerList;
+using PlayerRoles.FirstPersonControl;
 
 namespace ChaosRadio
 {
@@ -32,16 +39,16 @@ namespace ChaosRadio
                 return false;
 
             speakerRole.VoiceModule.CurrentChannel = validatedChannel;
-            foreach (Player target in Player.List)
+            foreach (ReferenceHub Hub in ReferenceHub.AllHubs)
             {
-                if (target.ReferenceHub == msg.Speaker)
+                if (Hub == msg.Speaker)
                     continue;
 
-                IVoiceRole targetRole = target.ReferenceHub.roleManager.CurrentRole as IVoiceRole;
+                IVoiceRole targetRole = Hub.roleManager.CurrentRole as IVoiceRole;
                 if (targetRole == null)
                     continue;
 
-                bool hedefKaosTelsiziVar = target.Items.Any(item => KaosTelsiz.telsiz.Check(item));
+                bool hedefKaosTelsiziVar = Hub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)));
                 if (oyuncuKaosTelsiziVar == hedefKaosTelsiziVar)
                 {
                     VoiceChatChannel targetChannel = targetRole.VoiceModule.ValidateReceive(msg.Speaker, validatedChannel);
@@ -49,11 +56,11 @@ namespace ChaosRadio
                         continue;
 
                     msg.Channel = targetChannel;
-                    target.ReferenceHub.connectionToClient.Send(msg, 0);
+                    Hub.connectionToClient.Send(msg, 0);
                 }
                 else
                 {
-                    if (Vector3.Distance(target.Position, player.Position) >= 10f)
+                    if (Vector3.Distance(Hub.GetPosition(), player.Position) >= 3f)
                         continue;
 
                     VoiceChatChannel targetChannel = targetRole.VoiceModule.ValidateReceive(msg.Speaker, VoiceChatChannel.Proximity);
@@ -61,7 +68,7 @@ namespace ChaosRadio
                         continue;
 
                     msg.Channel = targetChannel;
-                    target.ReferenceHub.connectionToClient.Send(msg, 0);
+                    Hub.connectionToClient.Send(msg, 0);
                 }
             }
             return false;
