@@ -30,18 +30,18 @@ namespace ChaosRadio
             voiceRole.VoiceModule.CurrentChannel = voiceChatChannel;
             foreach (ReferenceHub allHub in ReferenceHub.AllHubs)
             {
-                if (allHub.roleManager.CurrentRole is IVoiceRole voiceRole2)
-                {
-                    VoiceChatChannel voiceChatChannel2 = voiceRole2.VoiceModule.ValidateReceive(msg.Speaker, voiceChatChannel);
-                    if (voiceChatChannel2 == 0 )
-                        continue;
+                if (allHub.roleManager.CurrentRole is not IVoiceRole voiceRole2)
+                    continue;
 
-                    if (voiceChatChannel2 == VoiceChatChannel.Radio && (oyuncuKaosTelsiziVar != allHub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)))))
-                        continue;
+                VoiceChatChannel voiceChatChannel2 = voiceRole2.VoiceModule.ValidateReceive(msg.Speaker, voiceChatChannel);
+                if (voiceChatChannel2 == 0)
+                    continue;
 
-                    msg.Channel = voiceChatChannel2;
-                    allHub.connectionToClient.Send(msg);
-                }
+                if (voiceChatChannel2 == VoiceChatChannel.Radio && (oyuncuKaosTelsiziVar != allHub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)))))
+                    continue;
+
+                msg.Channel = voiceChatChannel2;
+                allHub.connectionToClient.Send(msg);
             }
             return false;
         }
