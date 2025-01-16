@@ -25,7 +25,7 @@ namespace ChaosRadio
 
             bool oyuncuKaosTelsiziVar = false;
             if (ReferenceHub.TryGetHubNetID(conn.identity.netId, out ReferenceHub hub))
-                oyuncuKaosTelsiziVar =  hub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)));
+                oyuncuKaosTelsiziVar = hub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)));
 
             voiceRole.VoiceModule.CurrentChannel = voiceChatChannel;
             foreach (ReferenceHub allHub in ReferenceHub.AllHubs)
