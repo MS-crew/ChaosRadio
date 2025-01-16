@@ -1,6 +1,4 @@
-﻿using Exiled.CustomRoles;
-using Exiled.CustomRoles.API;
-using Exiled.CustomRoles.API.Features;
+﻿using Exiled.CustomRoles.API;
 using Exiled.Events.EventArgs.Player;
 
 namespace ChaosRadio

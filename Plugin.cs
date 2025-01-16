@@ -14,20 +14,21 @@ namespace ChaosRadio
         public override string Author => "ZurnaSever";
         public override string Name => "ChaosRadio";
         public override string Prefix => "ChaosRadio";
-        public override Version RequiredExiledVersion { get; } = new Version(9, 3, 0);
-        public override Version Version { get; } = new Version(1, 1, 8);
+        public override Version RequiredExiledVersion { get; } = new Version(9, 4, 0);
+        public override Version Version { get; } = new Version(1, 1, 9);
         private Harmony harmony;
         public override void OnEnabled()
         {
             Instance = this;
             eventHandlers = new EventHandlers(this);
-
             CustomItem.RegisterItems();
             if (CustomItem.Registered.Contains(KaosTelsiz.telsiz))
             {
                 harmony = new Harmony("KaosTelsizi");
                 harmony.PatchAll();
-                if (Config.AddRadioinSpawn) P.Spawned += eventHandlers.OnSpawned;
+                if (Config.AddRadioinSpawn) 
+                    P.Spawned += eventHandlers.OnSpawned;
+                Log.Info("Custom item successfully registered and patched");
             }
             else
                 Log.Error("Custom item id matched another custom item and could not be saved please fix it in config");
@@ -36,7 +37,8 @@ namespace ChaosRadio
         }
         public override void OnDisabled()
         {
-            if (Config.AddRadioinSpawn) P.Spawned -= eventHandlers.OnSpawned;
+            if (Config.AddRadioinSpawn) 
+                P.Spawned -= eventHandlers.OnSpawned;
             
             CustomItem.UnregisterItems();
             harmony.UnpatchAll(harmonyID: "KaosTelsizi");

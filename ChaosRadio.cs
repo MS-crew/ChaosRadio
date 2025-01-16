@@ -17,26 +17,7 @@ namespace ChaosRadio
         public override ItemType Type { get; set; } = ItemType.Radio;
         public override Vector3 Scale { get; set; } = new Vector3(1, 1, 1);
         public override string Description { get; set; } = "A special radio for Chaos's communication network.";
-        public override SpawnProperties SpawnProperties { get; set; } = new SpawnProperties()
-        {
-            Limit = 2,
-            DynamicSpawnPoints =
-            {
-                new()
-                {
-                        Location = SpawnLocationType.InsideGateA,
-                        Chance = 100
-                }
-            },
-            StaticSpawnPoints = new List<StaticSpawnPoint>()
-            {
-                new()
-                {
-                    Position = new Vector3(0,0,0),
-                    Chance = 0
-                }
-            }
-        };
+        public override SpawnProperties SpawnProperties { get; set; } = new SpawnProperties();
         public override void Init()
         {
             base.Init();

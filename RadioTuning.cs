@@ -2,12 +2,9 @@
 using VoiceChat;
 using HarmonyLib;
 using System.Linq;
-using UnityEngine;
 using PlayerRoles.Voice;
-using Exiled.API.Features;
 using VoiceChat.Networking;
 using Exiled.API.Features.Items;
-using PlayerRoles.FirstPersonControl;
 
 namespace ChaosRadio
 {
@@ -19,8 +16,9 @@ namespace ChaosRadio
             if (msg.Channel != VoiceChatChannel.Radio)
                 return true;
 
-            Player player = Player.Get(conn);
-            bool oyuncuKaosTelsiziVar = player.Items.Any(item => KaosTelsiz.telsiz.Check(item));
+            bool oyuncuKaosTelsiziVar = false;
+            if (ReferenceHub.TryGetHubNetID(conn.identity.netId, out ReferenceHub hub))
+                oyuncuKaosTelsiziVar = hub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)));
 
             if (msg.SpeakerNull || msg.Speaker.netId != conn.identity.netId)
                 return false;
@@ -43,28 +41,16 @@ namespace ChaosRadio
                 if (targetRole == null)
                     continue;
 
+                VoiceChatChannel targetChannel = targetRole.VoiceModule.ValidateReceive(msg.Speaker, validatedChannel);
+                if (targetChannel == VoiceChatChannel.None)
+                   continue;
+
                 bool hedefKaosTelsiziVar = Hub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)));
-                if (oyuncuKaosTelsiziVar == hedefKaosTelsiziVar)
-                {
-                    VoiceChatChannel targetChannel = targetRole.VoiceModule.ValidateReceive(msg.Speaker, validatedChannel);
-                    if (targetChannel == VoiceChatChannel.None)
-                        continue;
+                if (targetChannel == VoiceChatChannel.Radio && oyuncuKaosTelsiziVar != hedefKaosTelsiziVar)
+                    continue;
 
-                    msg.Channel = targetChannel;
-                    Hub.connectionToClient.Send(msg, 0);
-                }
-                else
-                {
-                    if (Vector3.Distance(Hub.GetPosition(), player.Position) >= 3f)
-                        continue;
-
-                    VoiceChatChannel targetChannel = targetRole.VoiceModule.ValidateReceive(msg.Speaker, VoiceChatChannel.Proximity);
-                    if (targetChannel == VoiceChatChannel.None)
-                        continue;
-
-                    msg.Channel = targetChannel;
-                    Hub.connectionToClient.Send(msg, 0);
-                }
+                msg.Channel = targetChannel;
+                Hub.connectionToClient.Send(msg, 0);
             }
             return false;
         }
