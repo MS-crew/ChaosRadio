@@ -18,7 +18,6 @@ namespace ChaosRadio
         {
             List<CodeInstruction> Yenikodlar = ListPool<CodeInstruction>.Pool.Get(instructions);
 
-            LocalBuilder Gonderen = generator.DeclareLocal(typeof(ReferenceHub));
             LocalBuilder Kaostelsizmi = generator.DeclareLocal(typeof(bool));
             LocalBuilder AlanKaostelsizmi = generator.DeclareLocal(typeof(bool));
 
