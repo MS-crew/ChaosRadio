@@ -15,7 +15,7 @@ namespace ChaosRadio
         public override string Name => "ChaosRadio";
         public override string Prefix => "ChaosRadio";
         public override Version RequiredExiledVersion { get; } = new Version(9, 4, 0);
-        public override Version Version { get; } = new Version(1, 2, 0);
+        public override Version Version { get; } = new Version(1, 5, 0);
         private Harmony harmony;
         public override void OnEnabled()
         {

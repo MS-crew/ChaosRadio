@@ -1,5 +1,6 @@
 ﻿using Exiled.CustomRoles.API;
 using Exiled.Events.EventArgs.Player;
+using Exiled.CustomItems.API.Features;
 
 namespace ChaosRadio
 {
@@ -11,10 +12,13 @@ namespace ChaosRadio
         {
             if (ar.Player.Role.Team == PlayerRoles.Team.ChaosInsurgency)
             {
-                if (ar.Player.GetCustomRoles() != null && !plugin.Config.AddEvenCustomRole)
-                    return;
+                if (ar.Player.GetCustomRoles() != null) 
+                { 
+                    if (plugin.Config.AddEvenCustomRole)
+                        CustomItem.TryGive(ar.Player, plugin.Config.ChaosRadio.Name, false);
+                }
                 else
-                    plugin.Config.ChaosRadio.Give(ar.Player, false);
+                    CustomItem.TryGive(ar.Player, plugin.Config.ChaosRadio.Name, false);
             }
         }
     }

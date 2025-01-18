@@ -4,6 +4,7 @@ using Exiled.API.Features.Spawn;
 using System.Collections.Generic;
 using Exiled.API.Features.Attributes;
 using Exiled.CustomItems.API.Features;
+using PlayerRoles;
 
 namespace ChaosRadio
 {

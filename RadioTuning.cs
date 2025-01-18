@@ -1,49 +1,86 @@
 ﻿using Mirror;
-using VoiceChat;
 using HarmonyLib;
 using System.Linq;
-using PlayerRoles.Voice;
+using UnityEngine;
+using System.Reflection;
 using VoiceChat.Networking;
+using System.Reflection.Emit;
+using Exiled.API.Features.Pools;
 using Exiled.API.Features.Items;
+using System.Collections.Generic;
 
 namespace ChaosRadio
 {
     [HarmonyPatch(typeof(VoiceTransceiver), nameof(VoiceTransceiver.ServerReceiveMessage))]
-    public static class Voice
+    public static class ServerReceiveMessageTranspilers
     {
-        public static bool Prefix(NetworkConnection conn, VoiceMessage msg)
+        public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            if (msg.Channel != VoiceChatChannel.Radio)
-                return true;
+            List<CodeInstruction> Yenikodlar = ListPool<CodeInstruction>.Pool.Get(instructions);
 
-            if (msg.SpeakerNull || msg.Speaker.netId != conn.identity.netId || !(msg.Speaker.roleManager.CurrentRole is IVoiceRole voiceRole) || !voiceRole.VoiceModule.CheckRateLimit() || VoiceChatMutes.IsMuted(msg.Speaker))
-                return false;
+            LocalBuilder Gonderen = generator.DeclareLocal(typeof(ReferenceHub));
+            LocalBuilder Kaostelsizmi = generator.DeclareLocal(typeof(bool));
+            LocalBuilder AlanKaostelsizmi = generator.DeclareLocal(typeof(bool));
 
-            VoiceChatChannel voiceChatChannel = voiceRole.VoiceModule.ValidateSend(msg.Channel);
-            if (voiceChatChannel == VoiceChatChannel.None)
-                return false;
+            Label Atla = generator.DefineLabel();
+            Label Atla2 = generator.DefineLabel();
+            Label Donguatla = generator.DefineLabel();
 
-            bool oyuncuKaosTelsiziVar = false;
-            if (ReferenceHub.TryGetHubNetID(conn.identity.netId, out ReferenceHub hub))
-                oyuncuKaosTelsiziVar = hub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)));
+            int GonderenKontrol = Yenikodlar.FindIndex(instruction => instruction.opcode == OpCodes.Call && instruction.operand.ToString().Contains("get_AllHubs"));
 
-            voiceRole.VoiceModule.CurrentChannel = voiceChatChannel;
-            foreach (ReferenceHub allHub in ReferenceHub.AllHubs)
+            Yenikodlar[GonderenKontrol].labels.Add(Atla2);
+            Yenikodlar.InsertRange(GonderenKontrol, new List<CodeInstruction>
+            {   
+                new CodeInstruction(OpCodes.Ldloc, 1),
+                new CodeInstruction(OpCodes.Ldc_I4, 2),
+                new CodeInstruction(OpCodes.Bne_Un, Atla2),
+                
+                new CodeInstruction(OpCodes.Ldarg_0),
+                new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(NetworkConnection), nameof(NetworkConnection.identity))),
+                new CodeInstruction(OpCodes.Callvirt, AccessTools.PropertyGetter(typeof(NetworkIdentity), nameof(NetworkIdentity.gameObject))),
+                new CodeInstruction(OpCodes.Callvirt, AccessTools.Method(typeof(ReferenceHub), nameof(ReferenceHub.GetHub),[typeof(GameObject)])),
+
+                new CodeInstruction(OpCodes.Call,  AccessTools.Method(typeof(Kontrol), nameof(Kontrol.KaosTelsizGonderen))),
+                new CodeInstruction(OpCodes.Stloc, Kaostelsizmi.LocalIndex)
+            });
+
+            int Alankontrol = Yenikodlar.FindIndex(instruction => instruction.opcode == OpCodes.Ldarga_S);
+            Yenikodlar[Alankontrol].labels.Add(Atla);
+            Yenikodlar.InsertRange(Alankontrol, new List<CodeInstruction>
             {
-                if (allHub.roleManager.CurrentRole is not IVoiceRole voiceRole2)
-                    continue;
+                new CodeInstruction(OpCodes.Ldloc, 5),
+                new CodeInstruction(OpCodes.Ldc_I4, 2),
+                new CodeInstruction(OpCodes.Bne_Un, Atla),
 
-                VoiceChatChannel voiceChatChannel2 = voiceRole2.VoiceModule.ValidateReceive(msg.Speaker, voiceChatChannel);
-                if (voiceChatChannel2 == 0)
-                    continue;
+                new CodeInstruction(OpCodes.Ldloc_3),
+                new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(Kontrol), nameof(Kontrol.KaosTelsizAlan))),
+                new CodeInstruction(OpCodes.Stloc, AlanKaostelsizmi.LocalIndex),
 
-                if (voiceChatChannel2 == VoiceChatChannel.Radio && (oyuncuKaosTelsiziVar != allHub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)))))
-                    continue;
+                new CodeInstruction(OpCodes.Ldloc, Kaostelsizmi.LocalIndex),
+                new CodeInstruction(OpCodes.Ldloc, AlanKaostelsizmi.LocalIndex),
+                new CodeInstruction(OpCodes.Beq_S, Donguatla),
+            });
 
-                msg.Channel = voiceChatChannel2;
-                allHub.connectionToClient.Send(msg);
+            int DonguDevam = Yenikodlar.FindIndex(instruction => instruction.opcode == OpCodes.Call && instruction.operand is MethodInfo method4 && method4.Name == "MoveNext");
+            Yenikodlar[DonguDevam - 1].labels.Add(Donguatla);
+
+            for (int z = 0; z < Yenikodlar.Count; z++)
+                yield return Yenikodlar[z];
+
+            ListPool<CodeInstruction>.Pool.Return(Yenikodlar);
+        }
+
+        public static class Kontrol
+        {
+            public static bool KaosTelsizGonderen(ReferenceHub Hub)
+            {
+                return Hub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)));
             }
-            return false;
+
+            public static bool KaosTelsizAlan(ReferenceHub hub)
+            {
+                return !hub.inventory.UserInventory.Items.Values.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)));
+            }
         }
     }
 }
