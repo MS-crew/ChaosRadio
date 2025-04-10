@@ -8,20 +8,31 @@ namespace ChaosRadio
 {
     public class Plugin : Plugin<Config>
     {
+        private Harmony harmony;
+
         public static Plugin Instance { get; private set; }
 
+
         public static EventHandlers eventHandlers;
+
         public override string Author => "ZurnaSever";
+
         public override string Name => "ChaosRadio";
+
         public override string Prefix => "ChaosRadio";
+
         public override Version RequiredExiledVersion { get; } = new Version(9, 4, 0);
-        public override Version Version { get; } = new Version(1, 5, 0);
-        private Harmony harmony;
+
+        public override Version Version { get; } = new Version(1, 6, 0);
+
+        
         public override void OnEnabled()
         {
             Instance = this;
             eventHandlers = new EventHandlers(this);
+
             CustomItem.RegisterItems();
+
             if (CustomItem.Registered.Contains(KaosTelsiz.telsiz))
             {
                 harmony = new Harmony("KaosTelsizi");
@@ -36,6 +47,7 @@ namespace ChaosRadio
             
             base.OnEnabled();
         }
+
         public override void OnDisabled()
         {
             if (Config.AddRadioinSpawn) 
