@@ -22,7 +22,7 @@ namespace ChaosRadio
 
         public override Version RequiredExiledVersion { get; } = new Version(9, 4, 0);
 
-        public override Version Version { get; } = new Version(1, 6, 0);
+        public override Version Version { get; } = new Version(1, 6, 1);
 
         public override void OnEnabled()
         {
