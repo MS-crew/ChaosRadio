@@ -9,7 +9,7 @@
 
 ## Chaos Radio
 
-- **Special Channels:** A voice communication network that can only be heard with a chaos radio.
+- **Special Channels:** A voice communication network that can only be heard with a chaos radio.(Custom Item) 
 - **Add to adjustable inventory:** Can be added automatically when chaos arises.
 
 ## Installation
