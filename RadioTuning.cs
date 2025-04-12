@@ -1,17 +1,19 @@
-﻿using Mirror;
-using HarmonyLib;
+﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using System.Reflection;
 using System.Reflection.Emit;
-using Exiled.API.Features.Pools;
+
 using Exiled.API.Features.Items;
-using System.Collections.Generic;
-using static HarmonyLib.AccessTools;
+using Exiled.API.Features.Pools;
+using HarmonyLib;
 
 using InventorySystem;
 using InventorySystem.Items;
+using Mirror;
+using UnityEngine;
 using VoiceChat.Networking;
+
+using static HarmonyLib.AccessTools;
 
 namespace ChaosRadio
 {
@@ -79,6 +81,6 @@ namespace ChaosRadio
 
             ListPool<CodeInstruction>.Pool.Return(Yenikodlar);
         }
-        public static bool KaosTelsizGonderen(ICollection<ItemBase> items) => items.Any(item => KaosTelsiz.telsiz.Check(Item.Get(item)));
+        public static bool KaosTelsizGonderen(ICollection<ItemBase> items) => items.Any(item => Plugin.Instance.Config.ChaosRadio.Check(Item.Get(item)));
     }
 }

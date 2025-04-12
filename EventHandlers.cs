@@ -6,20 +6,16 @@ namespace ChaosRadio
 {
     public class EventHandlers
     {
-        public readonly Plugin plugin;
-        public EventHandlers(Plugin plugin) => this.plugin = plugin;
-        public void OnSpawned(SpawnedEventArgs ar)
+        public void OnSpawned(SpawnedEventArgs ev)
         {
-            if (ar.Player.Role.Team == PlayerRoles.Team.ChaosInsurgency)
-            {
-                if (ar.Player.GetCustomRoles() != null) 
-                { 
-                    if (plugin.Config.AddEvenCustomRole)
-                        CustomItem.TryGive(ar.Player, plugin.Config.ChaosRadio.Name, false);
-                }
-                else
-                    CustomItem.TryGive(ar.Player, plugin.Config.ChaosRadio.Name, false);
-            }
+            if (ev.Player.Role.Team != PlayerRoles.Team.ChaosInsurgency || !Plugin.Instance.Config.AddRadioinSpawn || !CustomItem.Registered.Contains(Plugin.Instance.Config.ChaosRadio))
+                return;
+
+            if (ev.Player.GetCustomRoles() == null)
+                CustomItem.TryGive(ev.Player, Plugin.Instance.Config.ChaosRadio.Name, false);
+            else
+                if (Plugin.Instance.Config.AddEvenCustomRole)
+                    CustomItem.TryGive(ev.Player, Plugin.Instance.Config.ChaosRadio.Name, false);
         }
     }
 }
