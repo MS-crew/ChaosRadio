@@ -25,8 +25,7 @@ namespace ChaosRadio
             if (ev.Message.Channel != VoiceChat.VoiceChatChannel.Radio)
                 return;
 
-            ReferenceHub hub = ReferenceHub.GetHub(ev.Message.Speaker);
-            if (hub == null)
+            if(!ReferenceHub.TryGetHub(ev.Message.Speaker.gameObject, out ReferenceHub hub))
                 return;
 
             ev.IsAllowed = ev.Player.ReferenceHub.IshaveChaosRadio == hub.IshaveChaosRadio;
