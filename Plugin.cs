@@ -1,15 +1,13 @@
 ﻿using System;
-using HarmonyLib;
 using Exiled.API.Features;
 using Exiled.CustomItems.API.Features;
 using P = Exiled.Events.Handlers.Player;
+using Ply = LabApi.Events.Handlers.PlayerEvents;
 
 namespace ChaosRadio
 {
     public class Plugin : Plugin<Config>
     {
-        private Harmony harmony;
-
         public static Plugin Instance { get; private set; }
 
         public static EventHandlers eventHandlers;
@@ -20,37 +18,28 @@ namespace ChaosRadio
 
         public override string Prefix => "ChaosRadio";
 
-        public override Version RequiredExiledVersion { get; } = new Version(9, 4, 0);
+        public override Version RequiredExiledVersion { get; } = new Version(9, 6, 0);
 
-        public override Version Version { get; } = new Version(1, 6, 1);
+        public override Version Version { get; } = new Version(1, 7, 0);
 
         public override void OnEnabled()
         {
-            Instance = this;
-            eventHandlers = new EventHandlers();
-
+            Instance = this; 
             CustomItem.RegisterItems();
+
+            eventHandlers = new EventHandlers();
             P.Spawned += eventHandlers.OnSpawned;
+            Ply.ReceivingVoiceMessage += eventHandlers.OnPlayerReceivingVoiceMessage;
 
-            if (CustomItem.Registered.Contains(Plugin.Instance.Config.ChaosRadio))
-            {
-                harmony = new Harmony("KaosTelsizi");
-                harmony.PatchAll();
-
-                Log.Debug("Custom item successfully registered and patched");
-            }
-            else
-                Log.Error("Custom item id matched another custom item and could not be saved please fix it in config");
-            
             base.OnEnabled();
         }
 
         public override void OnDisabled()
         {
             P.Spawned -= eventHandlers.OnSpawned;
-            
+            Ply.ReceivingVoiceMessage -= eventHandlers.OnPlayerReceivingVoiceMessage;
+
             CustomItem.UnregisterItems();
-            harmony.UnpatchAll(harmonyID: "KaosTelsizi");
 
             eventHandlers = null;
             Instance = null;
