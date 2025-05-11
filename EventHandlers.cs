@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Exiled.API.Features;
 using Exiled.CustomRoles.API;
 using Exiled.Events.EventArgs.Player;
 using Exiled.CustomItems.API.Features;
@@ -10,14 +11,14 @@ namespace ChaosRadio
     {
         public void OnSpawned(SpawnedEventArgs ev)
         {
-            if (ev.Player.Role.Team != PlayerRoles.Team.ChaosInsurgency || !Plugin.Instance.Config.AddRadioinSpawn || !CustomItem.Registered.Contains(Plugin.Instance.Config.ChaosRadio))
+            if (ev.Player.Role.Team != PlayerRoles.Team.ChaosInsurgency || !Plugin.Instance.Config.AddRadioinSpawn || !CustomItem.TryGet(Plugin.Instance.Config.ChaosRadio.Id , out CustomItem radio))
                 return;
 
             if (ev.Player.GetCustomRoles() == null)
-                CustomItem.TryGive(ev.Player, Plugin.Instance.Config.ChaosRadio.Name, false);
+                radio.Give(ev.Player, false);
             else
                 if (Plugin.Instance.Config.AddEvenCustomRole)
-                    CustomItem.TryGive(ev.Player, Plugin.Instance.Config.ChaosRadio.Name, false);
+                    radio.Give(ev.Player, false);
         }
 
         public void OnPlayerReceivingVoiceMessage(PlayerReceivingVoiceMessageEventArgs ev)
@@ -25,14 +26,11 @@ namespace ChaosRadio
             if (ev.Message.Channel != VoiceChat.VoiceChatChannel.Radio)
                 return;
 
-            if(!ReferenceHub.TryGetHub(ev.Message.Speaker.gameObject, out ReferenceHub hub))
-                return;
-
-            ev.IsAllowed = ev.Player.ReferenceHub.IshaveChaosRadio == hub.IshaveChaosRadio;
+            ev.IsAllowed = ev.Player.IshaveChaosRadio == ev.Sender.IshaveChaosRadio;
         }
     }
     public static class ReferenceHubExtension
     {
-        public static bool IshaveChaosRadio(this ReferenceHub player) => player.inventory.UserInventory.Items.Keys.Any(i => Plugin.Instance.Config.ChaosRadio.TrackedSerials.Contains(i));
+        public static bool IshaveChaosRadio(this LabApi.Features.Wrappers.Player player) => player.Inventory.UserInventory.Items.Keys.Any(i => CustomItem.Get(Plugin.Instance.Config.ChaosRadio.Id).TrackedSerials.Contains(i));
     }
 }
