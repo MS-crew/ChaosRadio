@@ -25,9 +25,10 @@ namespace ChaosRadio
         public override void OnEnabled()
         {
             Instance = this; 
+            eventHandlers = new EventHandlers();
+
             CustomItem.RegisterItems();
 
-            eventHandlers = new EventHandlers();
             P.Spawned += eventHandlers.OnSpawned;
             Ply.ReceivingVoiceMessage += eventHandlers.OnPlayerReceivingVoiceMessage;
 
