@@ -4,6 +4,7 @@ using Exiled.Events.EventArgs.Player;
 using Exiled.CustomItems.API.Features;
 using LabApi.Events.Arguments.PlayerEvents;
 using Player = LabApi.Features.Wrappers.Player;
+using VoiceChat;
 
 namespace ChaosRadio
 {
@@ -23,10 +24,16 @@ namespace ChaosRadio
 
         public void OnPlayerReceivingVoiceMessage(PlayerReceivingVoiceMessageEventArgs ev)
         {
-            if (ev.Message.Channel != VoiceChat.VoiceChatChannel.Radio)
+            if (!ev.IsAllowed)
                 return;
-            
-            ev.IsAllowed = ev.Player.IshaveChaosRadio() == ev.Sender.IshaveChaosRadio();
+
+            if (ev.Message.Channel != VoiceChatChannel.Radio)
+                return;
+
+            if (ev.Player.IshaveChaosRadio() == ev.Sender.IshaveChaosRadio())
+                return;
+
+            ev.Message.Channel = VoiceChatChannel.Proximity;
         }
     }
     public static class ReferenceHubExtension
